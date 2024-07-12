@@ -1,13 +1,18 @@
 <?php
 session_start();
 
+// Check if session variables are set
+if (!isset($_SESSION['broodje'], $_SESSION['saus'], $_SESSION['verzending'], $_SESSION['naam'], $_SESSION['email'])) {
+    header("Location: index.php");
+    exit;
+}
+
 // Get order information from session
 $broodje = $_SESSION['broodje'];
 $saus = $_SESSION['saus'];
 $verzending = $_SESSION['verzending'];
 $naam = $_SESSION['naam'];
 $email = $_SESSION['email'];
-
 
 // Prices of broodjes and sauces
 $broodjes_prices = array(
@@ -25,105 +30,81 @@ $saus_prices = array(
 );
 
 // Calculate total price
-$broodje_price = $broodjes_prices[$broodje];
-$saus_price = $saus_prices[$saus];
+$broodje_price = isset($broodjes_prices[$broodje]) ? $broodjes_prices[$broodje] : 0;
+$saus_price = isset($saus_prices[$saus]) ? $saus_prices[$saus] : 0;
 $verzending_price = ($verzending == 'verzending') ? 5 : 0;
 $total_price = $broodje_price + $saus_price + $verzending_price;
 
 // Define product images
 $broodje_images = array(
-    "Broodje carpaccio" => "https://images.bakkerbart.nl/Products/Original/Broodje_carpaccio-6174.jpg",
-    "Broodje gezond" => "https://images.bakkerbart.nl/Products/Original/Bartje_Gezond_jpg-3414.jpg",
-    "Broodje kip Mex" => "https://images.bakkerbart.nl/Products/Original/Bartje_kip_mex-6132.jpg",
-    "Broodje tonijnsalade" => "https://images.bakkerbart.nl/Products/Original/bartje_tonijnsalade_jpg-3459.jpg"
+    "Broodje carpaccio" => "uploads/Broodje_carpaccio.jpg",
+    "Broodje gezond" => "uploads/Broodje_Gezond.jpg",
+    "Broodje kip Mex" => "uploads/Broodje_kip_mex.jpg",
+    "Broodje tonijnsalade" => "uploads/Broodje_tonijnsalade.jpg"
 );
 
-
-
-// Print order details
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Bedankt voor uw bestelling</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
-        /* CSS Styles */
+        body {
+            background-image: url('uploads/Background.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
         .container2 {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 500px;
+            margin: 30px auto;
             padding: 20px;
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-            margin-top: 50px;
-            margin-bottom: 50px;
-            overflow: auto;
-            
-
         }
         .card {
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px;
-            float: left;
-            background-color: #f9f9f9;
-            overflow: auto;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-
         .card img {
-            width: 100%;
-            border-radius: 8px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
         }
-
-        .card .info {
+        .card-body {
+            padding: 20px;
             text-align: center;
         }
+        .btn-primary {
+            background-color: darkred;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: red;
+        }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
 <div class="container2">
-<div class="card">
-    <img src="<?php echo $broodje_images[$broodje]; ?>" alt="<?php echo $broodje; ?>">
-    <div class="info">
-    <h3><?php echo $broodje; ?>  <?php echo $saus; ?> saus
-<?php
-// If 'verzending' option is not selected, add this information as well
-if ($verzending === 'verzending') {
-    echo "<p> Verzending (+ €5)</p>";
-}
-?>
-
-
-    Totale prijs = €<?php echo $total_price; ?></h3><br>
-</h3>
-    </div>
-</div>
-
-<br>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md 6 ">
-            <h3>Je kan QR code betalen, <?php echo $naam; ?>!</h3><br>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=syntrapxl.be" alt="logo" width="150"><br><br>
-            <h3> <?php echo $broodje; ?> besteld met <?php echo $saus; ?> saus.<br><br><br>
-               
-
+    <div class="card">
+        <img src="<?php echo $broodje_images[$broodje]; ?>" alt="<?php echo $broodje; ?>">
+        <div class="card-body">
+            <h3><?php echo $broodje; ?> met <?php echo $saus; ?> saus</h3>
+            <?php if ($verzending === 'verzending') { echo "<p> Verzending (+ €5)</p>"; } ?>
+            <p>Totale prijs = €<?php echo $total_price; ?></p>
+            <h5>Bedankt voor uw bestelling, <?php echo $naam; ?>!</h5>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=syntrapxl.be" alt="QR Code" class="img-fluid">
+            <br><br>
             <a class='btn btn-primary btn-block' onclick="window.print();">Afdrukken</a>
         </div>
     </div>
 </div>
-
-</div>
-
-
-
-
-
-
-
 </body>
 </html>
